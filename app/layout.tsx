@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="https://files.readme.io/eaa8758971d202bfc5e089f15205de29a5f28e7bd602de82755d1dc8a62cbeca-basiq-cobrand-favicon-white.png" />
+        <link rel="icon" href="/icon8.png" />
       </head>
       <body className={inter.className}>{children}</body>
     </html>
