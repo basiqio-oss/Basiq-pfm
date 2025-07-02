@@ -14,35 +14,34 @@ A modern Personal Finance Management (PFM) web application built with Next.js, R
 ### 1. Clone the repository
 ```bash
 git clone <your-repo-url>
-cd Basiq-PFM-V3
+cd Basiq-pfm
 ```
 
-### 2. Install dependencies
-You can use `yarn`, `pnpm`, or `npm`:
+### 2. API key setup
+If you haven't already, Sign-up to the Basiq API service and grab your API key for your application (via the Developer Dashboard).
+
+⚠️ Don't forget to configure your dashboard appropriately - especially your redirect URL. Read more about that here.
+
+Once you have a Basiq API key, move the sample .env.sample file to .env.local and paste in your Basiq API key next to BASIQ_API_KEY=
+
 ```bash
-yarn install
-# or
-pnpm install
-# or
-npm install
+mv .env.sample .env.local
+# BASIQ_API_KEY=
+# + BASIQ_API_KEY=abc123
 ```
 
-### 3. Configure environment variables
-Copy the `.env.sample` file to `.env.local` and fill in the required values:
-```bash
-cp .env.sample .env.local
-```
-Edit `.env.local` with your Basiq API keys and other secrets.
+### 3. Install dependencies
+Install dependencies with yarn. If you don't have this installed, please read their installation guide for detailed instructions.
 
-### 4. Run the development server
 ```bash
-yarn run dev
-# or
-pnpm dev
-# or
-npm run dev
+yarn
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
+
+### 4. Start the development server
+```bash
+yarn dev
+```
+🎉 You should now see the website running at http://localhost:3000
 
 ## Scripts
 - `yarn run dev` — Start the development server
