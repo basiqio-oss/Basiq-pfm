@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, TrendingDown, TrendingUp, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import CountUp from "react-countup"
+import { RefreshCcw } from "lucide-react"
 
 interface NetWorthProps {
   netWorth: number
@@ -112,23 +113,37 @@ export default function NetWorth({ netWorth, trends, accounts, isLoading, onRefr
           </CardTitle>
 
           <div className="flex flex-col items-end space-y-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onGenerateReport}
-              disabled={isGenerating}
-              className="flex items-center space-x-1"
-              title="Generate Full Report"
-            >
-              <FileText className="w-4 h-4" />
-              <span>{isGenerating ? "Generating..." : "Generate Full Report"}</span>
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onRefresh}
+                disabled={isLoading}
+                title="Refresh"
+                className="h-8 w-8"
+              >
+                <RefreshCcw
+                  className={`w-4 h-4 ${isLoading ? "animate-spin text-blue-600" : "text-gray-700"}`}
+                />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onGenerateReport}
+                disabled={isGenerating}
+                className="flex items-center space-x-1"
+                title="Generate Full Report"
+              >
+                <FileText className="w-4 h-4" />
+                <span>{isGenerating ? "Generating..." : "Generate Full Report"}</span>
+              </Button>
+            </div>
 
             {statusMessage && !isGenerating && (
               <p
-                className={`text-sm mt-1 ${
-                  statusType === "success" ? "text-green-600" : "text-red-600"
-                }`}
+                className={`text-sm mt-1 ${statusType === "success" ? "text-green-600" : "text-red-600"
+                  }`}
                 role="alert"
               >
                 {statusMessage}
@@ -136,6 +151,7 @@ export default function NetWorth({ netWorth, trends, accounts, isLoading, onRefr
             )}
           </div>
         </CardHeader>
+
 
         <CardContent>
           <motion.div
