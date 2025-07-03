@@ -262,85 +262,61 @@ export default function Dashboard() {
 
   // Function to fetch dashboard data
   const fetchDashboardContent = useCallback(async () => {
-    console.log("fetchDashboardContent: Starting...")
     try {
       setError("")
-
       const userData = localStorage.getItem("basiq_user")
-      if (!userData) {
-        console.log("fetchDashboardContent: No user data found, redirecting to home")
-        router.push("/")
-        return
-      }
+      if (!userData) return router.push("/")
       const user = JSON.parse(userData)
 
-      let accountsData: Account[] = []
-      let transactionsData: Transaction[] = []
-      let reportsData: any = {}
-      let insightsData: any[] = []
+      // 1. Extract jobId from URL
+      const jobId = searchParams.get("jobId")
 
-      // Always use userId-based fetching now
-      console.log("fetchDashboardContent: Fetching accounts...")
-      const accountsPromise = fetch(`/api/basiq/accounts?userId=${user.userId}`)
+      // Check if jobId is valid (not null or "null")
+      const isValidJobId = jobId && jobId !== "null"
 
-      console.log("fetchDashboardContent: Fetching transactions...")
-      const transactionsPromise = fetch(`/api/basiq/transactions?userId=${user.userId}&limit=500`)
+      if (isValidJobId) {
+        const maxAttempts = 10
+        let attempt = 0
+        let jobComplete = false
 
-      console.log("fetchDashboardContent: Fetching reports/insights...")
-      const reportsPromise = fetch(`/api/basiq/reports?userId=${user.userId}`)
+        while (attempt < maxAttempts && !jobComplete) {
+          const res = await fetch(`/api/basiq/data-jobs?jobId=${jobId}`)
+          const data = await res.json()
+          const steps = data?.steps || []
+          jobComplete = steps.length > 0 && steps.every((s: any) => s.status === "success")
 
+          if (!jobComplete) await new Promise((r) => setTimeout(r, 2000))
+          attempt++
+        }
+
+        if (!jobComplete) {
+          setError("Job failed to complete. Please try again.")
+          return
+        }
+      }
+
+      // 4. Now fetch accounts, transactions, reports
       const [accountsRes, transactionsRes, reportsRes] = await Promise.all([
-        accountsPromise,
-        transactionsPromise,
-        reportsPromise,
+        fetch(`/api/basiq/accounts?userId=${user.userId}`),
+        fetch(`/api/basiq/transactions?userId=${user.userId}&limit=500`),
+        fetch(`/api/basiq/reports?userId=${user.userId}`),
       ])
 
       const accountsJson = await accountsRes.json()
       const transactionsJson = await transactionsRes.json()
       const reportsJson = await reportsRes.json()
 
-      console.log("fetchDashboardContent: Raw accounts response:", accountsJson)
-      console.log("fetchDashboardContent: Raw transactions response:", transactionsJson)
-      console.log("fetchDashboardContent: Raw reports response:", reportsJson)
-
-      // Ensure accountsData is an array and map Basiq's class.type to top-level type for consistency
-      accountsData = Array.isArray(accountsJson)
+      const accountsData = Array.isArray(accountsJson)
         ? accountsJson.map((acc: any) => ({ ...acc, type: acc.class?.type || "unknown" }))
         : accountsJson.data?.map((acc: any) => ({ ...acc, type: acc.class?.type || "unknown" })) || []
 
-      transactionsData = transactionsJson.data || []
-      reportsData = reportsJson
-      insightsData = reportsJson.insights || generateInsights(transactionsData) // Use Basiq insights if available, else generate
+      const transactionsData = transactionsJson.data || []
+      const insightsData = reportsJson.insights || generateInsights(transactionsData)
 
-      if (!accountsRes.ok && accountsRes.status !== 404) {
-        console.error("fetchDashboardContent: Accounts API error (fallback):", accountsJson)
-      }
-      if (!transactionsRes.ok && transactionsRes.status !== 404) {
-        console.error("fetchDashboardContent: Transactions API error (fallback):", transactionsJson)
-      }
-      if (!reportsRes.ok && reportsRes.status !== 404) {
-        console.error("fetchDashboardContent: Reports API error (fallback):", reportsJson)
-      }
-
-      // Add checks for empty data after fetching
-      if (accountsData.length === 0) {
-        console.warn("fetchDashboardContent: No accounts data retrieved.")
-      }
-      if (transactionsData.length === 0) {
-        console.warn("fetchDashboardContent: No transactions data retrieved.")
-      }
-
-      // Calculate net worth from accountsData
-      const netWorth = accountsData.reduce((sum: number, account: Account) => {
-        const balance = Number.parseFloat(account.balance || "0")
-        return sum + balance
-      }, 0)
-
-      console.log("fetchDashboardContent: Calculated net worth:", netWorth)
-
+      const netWorth = accountsData.reduce((sum, account) => sum + Number.parseFloat(account.balance || "0"), 0)
       const trends = calculateTrends(transactionsData, accountsData)
 
-      const dashboardFinalData = {
+      setData({
         user: {
           name: user.email.split("@")[0],
           email: user.email,
@@ -350,21 +326,15 @@ export default function Dashboard() {
         accounts: accountsData,
         transactions: transactionsData,
         insights: insightsData,
-        reports: reportsData.reports || {}, // Ensure reports is an object
+        reports: reportsJson.reports || {},
         trends,
-      }
-      console.log("fetchDashboardContent: Setting dashboard data:", dashboardFinalData)
-      setData(dashboardFinalData)
-      console.log("fetchDashboardContent: Data set successfully.")
+      })
     } catch (error) {
-      console.error("fetchDashboardContent: Error fetching dashboard data:", error)
       setError(error instanceof Error ? error.message : "Failed to load dashboard data")
     } finally {
-      console.log("fetchDashboardContent: Finally block - setting loading to false.")
       setLoading(false)
     }
-  }, [router, calculateTrends, generateInsights])
-
+  }, [router, calculateTrends, generateInsights, searchParams])
   // Initial data fetch
   useEffect(() => {
     const initializeDashboard = async () => {
