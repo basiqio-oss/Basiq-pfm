@@ -17,6 +17,7 @@ export async function getBasiqServerToken(): Promise<string> {
   return serverToken as string // Assert as string because updateServerToken ensures it's set
 }
 
+
 /**
  * Fetches a new Basiq client access token for a specific user.
  * Client tokens are not cached as they are user-specific and short-lived.

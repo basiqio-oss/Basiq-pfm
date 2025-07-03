@@ -280,7 +280,7 @@ export default function Dashboard() {
         let jobComplete = false
 
         while (attempt < maxAttempts && !jobComplete) {
-          const res = await fetch(`/api/basiq/data-jobs?jobId=${jobId}`)
+          const res = await fetch(`/api/basiq/job?jobId=${jobId}`)
           const data = await res.json()
           const steps = data?.steps || []
           jobComplete = steps.length > 0 && steps.every((s: any) => s.status === "success")

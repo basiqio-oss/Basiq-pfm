@@ -152,7 +152,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ scope: "SERVER_ACCESS" }),
+        body: JSON.stringify({ scope: "CLIENT_ACCESS" }),
       })
 
       const data = await response.json()
