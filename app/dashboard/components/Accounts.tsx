@@ -94,41 +94,42 @@ export default function Accounts({ accounts }: AccountsProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {accounts.map((account, index) => (
-            <motion.div
-              key={account.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              whileHover={{ x: 4, scale: 1.01 }}
-              onClick={() => handleAccountClick(account.id)}
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 border border-gray-200 hover:border-green-300 cursor-pointer group"
-            >
-              <div className="flex items-center space-x-4">
-                <motion.div whileHover={{ scale: 1.1 }} className="p-3 rounded-full bg-green-100 text-green-600">
-                  {getAccountIcon(account.class.type)}
-                </motion.div>
-                <div>
-                  <p className="font-semibold text-gray-900">{account.name}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge className={getAccountTypeColor(account.class.type)}>
-                      {account.class.type.replace("-", " ")}
-                    </Badge>
-                    <span className="text-sm text-gray-500">{account.accountNo}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-lg font-bold text-green-600">
-                    {formatCurrency(Number.parseFloat(account.balance), account.currency || "AUD")}
-                  </p>
-                  <p className="text-xs text-gray-500">{account.class.product}</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-              </div>
-            </motion.div>
-          ))}
+{accounts.map((account, index) => (
+  <motion.div
+    key={account.id}
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay: index * 0.05 }}
+    whileHover={{ x: 4, scale: 1.01 }}
+    onClick={() => handleAccountClick(account.id)}
+    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 border border-gray-200 hover:border-green-300 cursor-pointer group"
+  >
+    <div className="flex items-center space-x-4 min-w-0"> {/* <-- add min-w-0 here */}
+      <motion.div whileHover={{ scale: 1.1 }} className="p-3 rounded-full bg-green-100 text-green-600 flex-shrink-0">
+        {getAccountIcon(account.class.type)}
+      </motion.div>
+      <div className="min-w-0"> {/* <-- constrain width for text */}
+        <p className="font-semibold text-gray-900 truncate">{account.name}</p> {/* truncate long name */}
+        <div className="flex items-center gap-2 mt-1 flex-wrap"> {/* allow wrap */}
+          <Badge className={getAccountTypeColor(account.class.type)}>
+            {account.class.type.replace("-", " ")}
+          </Badge>
+          <span className="text-sm text-gray-500 truncate max-w-xs">{account.accountNo}</span> {/* truncate or limit width */}
+        </div>
+      </div>
+    </div>
+    <div className="flex items-center space-x-3 flex-shrink-0">
+      <div className="text-right min-w-0">
+        <p className="text-lg font-bold text-green-600 truncate max-w-xs">
+          {formatCurrency(Number.parseFloat(account.balance), account.currency || "AUD")}
+        </p>
+        <p className="text-xs text-gray-500 truncate max-w-xs">{account.class.product}</p>
+      </div>
+      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" />
+    </div>
+  </motion.div>
+))}
+
         </div>
       </CardContent>
     </Card>
