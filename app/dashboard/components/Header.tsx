@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   User,
   Handshake,
@@ -183,6 +183,7 @@ export default function Header({ user }: HeaderProps) {
               </div>
             </motion.div>
 
+            {/* Desktop menu */}
             <div className="hidden md:flex items-center space-x-4">
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
@@ -245,6 +246,7 @@ export default function Header({ user }: HeaderProps) {
               )}
             </div>
 
+            {/* Mobile menu button */}
             <div className="md:hidden">
               <Button
                 variant="ghost"
@@ -257,6 +259,90 @@ export default function Header({ user }: HeaderProps) {
             </div>
           </div>
         </div>
+
+        {/* Mobile menu content */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden bg-white border-t border-gray-200"
+            >
+              <div className="px-6 py-4 space-y-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    handleExportClientToken()
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="w-full flex items-center justify-center space-x-2"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Copy Token</span>
+                </Button>
+
+                {user && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left"
+                      onClick={() => {
+                        handleViewUserDetails()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      disabled={loadingUserDetails}
+                    >
+                      <User className="w-5 h-5 mr-2 inline" />
+                      {loadingUserDetails ? "Loading..." : "User Details"}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left"
+                      onClick={() => {
+                        handleAddAnotherAccount()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      disabled={loadingAddAccount}
+                    >
+                      <UserPlus className="w-5 h-5 mr-2 inline" />
+                      {loadingAddAccount ? "Loading..." : "Add another account"}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left"
+                      onClick={() => {
+                        handleConsentManagement()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      disabled={loadingConsent}
+                    >
+                      <Handshake className="w-5 h-5 mr-2 inline" />
+                      {loadingConsent ? "Loading..." : "Consent Management"}
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      className="w-full text-left text-red-600"
+                      onClick={() => {
+                        handleLogout()
+                        setIsMobileMenuOpen(false)
+                      }}
+                    >
+                      <LogOut className="w-5 h-5 mr-2 inline" />
+                      Sign out
+                    </Button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
     </TooltipProvider>
   )

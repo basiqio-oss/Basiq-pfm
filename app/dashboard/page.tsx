@@ -18,8 +18,9 @@ interface Account {
   id: string
   name: string
   balance: string
-  institution: string
+  accountNo: string
   accountNumber?: string
+  institution: string
   class: {
     type: string // e.g., "transaction", "credit-card", "loan", "term-deposit"
     product: string
@@ -307,13 +308,21 @@ export default function Dashboard() {
       const reportsJson = await reportsRes.json()
 
       const accountsData = Array.isArray(accountsJson)
-        ? accountsJson.map((acc: any) => ({ ...acc, type: acc.class?.type || "unknown" }))
-        : accountsJson.data?.map((acc: any) => ({ ...acc, type: acc.class?.type || "unknown" })) || []
+        ? accountsJson.map((acc: any) => ({
+          ...acc,
+          type: acc.class?.type || "unknown",
+          accountNo: acc.accountNo || acc.accountNumber || "", // Ensure accountNo is present
+        }))
+        : accountsJson.data?.map((acc: any) => ({
+          ...acc,
+          type: acc.class?.type || "unknown",
+          accountNo: acc.accountNo || acc.accountNumber || "", // Ensure accountNo is present
+        })) || []
 
       const transactionsData = transactionsJson.data || []
       const insightsData = reportsJson.insights || generateInsights(transactionsData)
 
-      const netWorth = accountsData.reduce((sum, account) => sum + Number.parseFloat(account.balance || "0"), 0)
+      const netWorth = accountsData.reduce((sum: number, account: Account) => sum + Number.parseFloat(account.balance || "0"), 0)
       const trends = calculateTrends(transactionsData, accountsData)
 
       setData({
@@ -436,8 +445,10 @@ export default function Dashboard() {
 
   // If not loading and no error, render the main dashboard
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden flex flex-col">
-      <Header user={data?.user} isLoading={loading} />
+<div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="sticky top-0 z-50 bg-gray-50 shadow-sm">
+  <Header user={data?.user} isLoading={loading} />
+</div>
       <main className="flex-grow relative z-10 text-gray-900 p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
