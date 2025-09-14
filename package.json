@@ -54,7 +54,7 @@
     "js-cookie": "latest",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.454.0",
-    "next": "15.2.4",
+    "next": "15.4.7",
     "next-themes": "latest",
     "react": "^19",
     "react-countup": "^6.5.3",
